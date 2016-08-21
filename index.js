@@ -1102,14 +1102,18 @@ router.get('/albums', function(req, res) {
       attributes: ['artist', 'name', 'image']
   });
 
-  var serialied_albums = AlbumSerializer.serialize(_.values(albums));
+  var serialized_albums = AlbumSerializer.serialize(_.values(albums));
 
-  res.send(serialied_albums);
+  res.send(serialized_albums);
 });
 router.get('/albums/:id', function(req, res) {
-  res.send({
-    album: albums[req.params.id]
+  var AlbumSerializer = new JSONAPISerializer('albums', {
+      attributes: ['artist', 'name', 'image']
   });
+
+  var serialized_album = AlbumSerializer.serialize(albums[req.params.id]);
+
+  res.send(serialized_album);
 });
 router.get('/albums/:id/tracks', function(req, res) {
   res.send({
