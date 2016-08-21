@@ -1,6 +1,7 @@
 var _ = require('lodash');
 var express = require('express');
 var morgan = require('morgan');
+var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 var albums = {
   '1000': {
@@ -1096,9 +1097,14 @@ var app = express();
 var router = express.Router();
 
 router.get('/albums', function(req, res) {
-  res.send({
-    albums: _.values(albums)
+
+  var AlbumSerializer = new JSONAPISerializer('albums', {
+      attributes: ['artist', 'name', 'image']
   });
+
+  var serialied_albums = AlbumSerializer.serialize(_.values(albums));
+
+  res.send(serialied_albums);
 });
 router.get('/albums/:id', function(req, res) {
   res.send({
