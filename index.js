@@ -1087,12 +1087,6 @@ var tracks = {
   }]
 };
 
-_.forEach(albums, function(album, id) {
-  album.links = {
-    tracks: '/api/albums/' + id + '/tracks'
-  };
-});
-
 var app = express();
 var router = express.Router();
 
@@ -1106,19 +1100,34 @@ router.get('/albums', function(req, res) {
 
   res.send(serialized_albums);
 });
+
 router.get('/albums/:id', function(req, res) {
   var AlbumSerializer = new JSONAPISerializer('albums', {
-      attributes: ['artist', 'name', 'image']
+      attributes: ['artist', 'name', 'image', 'tracks'],
+      tracks: {
+        ref: 'id',
+        included: true,
+        attributes: ['title', 'duration', 'sourceUrl']
+      }
   });
 
-  var serialized_album = AlbumSerializer.serialize(albums[req.params.id]);
+  var album = albums[req.params.id];
+  album.tracks = tracks[req.params.id];
 
-  res.send(serialized_album);
+  console.log(album);
+  var serializedAlbum = AlbumSerializer.serialize(album);
+
+  res.send(serializedAlbum);
 });
+
 router.get('/albums/:id/tracks', function(req, res) {
-  res.send({
-    tracks: tracks[req.params.id]
+  var TracksSerializer = new JSONAPISerializer('tracks', {
+      attributes: ['title', 'duration', 'sourceUrl']
   });
+
+  var serialized_tracks = TracksSerializer.serialize(tracks[req.params.id]);
+
+  res.send(serialized_tracks);
 });
 
 function notFound(req, res) {
